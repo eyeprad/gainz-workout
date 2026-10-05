@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0f1115">
+<title>GAINZ 4-Day Split</title>
+<style>
+:root{
+  --bg:#0f1115; --card:#171b22; --card2:#1e242e; --text:#f2f4f8; --muted:#9aa3b2;
+  --accent:#ff5c39; --accent2:#ffb03a; --green:#3ddc84; --blue:#4aa8ff; --red:#ff6b6b;
+  --border:#262d38; --radius:16px;
+}
+[data-theme="light"]{
+  --bg:#f4f5f7; --card:#ffffff; --card2:#eef0f3; --text:#14171c; --muted:#5d6675;
+  --accent:#e8482a; --accent2:#d98a12; --green:#0d9d58; --blue:#1668d9; --red:#d63b3b;
+  --border:#dfe3e9;
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+body{margin:0; font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text",Segoe UI,Roboto,sans-serif;
+  background:var(--bg); color:var(--text); padding-bottom:96px;}
+header{position:sticky; top:0; z-index:10; background:var(--bg);
+  padding:14px 16px 10px; border-bottom:1px solid var(--border);}
+h1{font-size:20px; margin:0; display:flex; align-items:center; gap:8px;}
+h1 .sub{font-size:12px; color:var(--muted); font-weight:500;}
+.toprow{display:flex; justify-content:space-between; align-items:center;}
+.iconbtn{background:var(--card); border:1px solid var(--border); color:var(--text);
+  width:38px; height:38px; border-radius:12px; font-size:18px; cursor:pointer;}
+.daybar{display:flex; gap:8px; overflow-x:auto; padding:12px 16px 4px; scrollbar-width:none;}
+.daybar::-webkit-scrollbar{display:none;}
+.daybtn{flex:0 0 auto; min-width:64px; padding:10px 6px; border-radius:14px; border:1px solid var(--border);
+  background:var(--card); color:var(--text); cursor:pointer; text-align:center;}
+.daybtn .dnum{font-size:11px; color:var(--muted); display:block;}
+.daybtn .dname{font-weight:700; font-size:14px;}
+.daybtn.rest .dname{color:var(--muted);}
+.daybtn.active{background:var(--accent); border-color:var(--accent); color:#fff;}
+.daybtn.active .dnum{color:rgba(255,255,255,.75);}
+.daybtn.done{border-color:var(--green);}
+.daybtn.done .dname::after{content:" ✓"; color:var(--green);}
+.daybtn.active.done .dname::after{color:#fff;}
+main{padding:12px 16px;}
+.progress{height:8px; background:var(--card2); border-radius:99px; overflow:hidden; margin:6px 0 14px;}
+.progress > div{height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); width:0%; transition:width .25s;}
+.excard{background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  padding:14px; margin-bottom:12px;}
+.excard.done{border-color:var(--green);}
+.exhead{display:flex; justify-content:space-between; align-items:baseline; gap:8px;}
+.exname{font-weight:700; font-size:16px;}
+.exsets{font-size:13px; color:var(--accent2); font-weight:700; white-space:nowrap;}
+.exnote{font-size:13px; color:var(--muted); margin-top:4px;}
+.setrow{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;}
+.setbtn{width:52px; height:52px; border-radius:14px; border:2px solid var(--border);
+  background:var(--card2); color:var(--text); font-weight:700; font-size:15px; cursor:pointer;}
+.setbtn.on{background:var(--green); border-color:var(--green); color:#062b1a;}
+[data-theme="light"] .setbtn.on{color:#fff;}
+.alts{margin-top:10px;}
+.alts summary{font-size:13px; color:var(--blue); cursor:pointer; font-weight:600;}
+.alts ul{margin:8px 0 0; padding-left:18px; font-size:14px; color:var(--muted);}
+.checkinbtn{display:block; width:100%; padding:18px; margin:8px 0 20px; border:none; border-radius:var(--radius);
+  background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#fff;
+  font-size:18px; font-weight:800; cursor:pointer;}
+.checkinbtn:active{transform:scale(.98);}
+.restcard{background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  padding:32px 20px; text-align:center; margin-top:12px;}
+.restcard .big{font-size:44px;}
+.restcard h2{margin:10px 0 6px;}
+.restcard p{color:var(--muted); font-size:14px;}
+.nextbtn{margin-top:14px; padding:12px 22px; border-radius:12px; border:none;
+  background:var(--accent); color:#fff; font-weight:700; font-size:15px; cursor:pointer;}
+.tabbar{position:fixed; bottom:0; left:0; right:0; display:flex; background:var(--card);
+  border-top:1px solid var(--border); padding:8px 6px calc(10px + env(safe-area-inset-bottom)); z-index:10;}
+.tab{flex:1; background:none; border:none; color:var(--muted); font-size:11px; font-weight:600;
+  padding:8px 4px; cursor:pointer; border-radius:10px;}
+.tab .ico{font-size:20px; display:block; margin-bottom:2px;}
+.tab.active{color:var(--accent);}
+.histitem{background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  padding:14px; margin-bottom:10px;}
+.histitem .hrow{display:flex; justify-content:space-between; align-items:center; gap:8px;}
+.histitem .hdate{font-weight:700; font-size:15px;}
+.histitem .hday{display:inline-block; font-size:12px; font-weight:700; padding:3px 10px; border-radius:99px;
+  background:var(--card2); color:var(--text); margin-top:6px;}
+.histitem .hstats{font-size:13px; color:var(--muted); margin-top:6px;}
+.badge{font-size:11px; font-weight:700; padding:4px 10px; border-radius:99px; white-space:nowrap;}
+.badge.ok{background:rgba(61,220,132,.15); color:var(--green);}
+.badge.pend{background:rgba(255,176,58,.15); color:var(--accent2);}
+.retrybtn{margin-top:8px; padding:8px 14px; border-radius:10px; border:1px solid var(--border);
+  background:var(--card2); color:var(--text); font-size:13px; font-weight:600; cursor:pointer;}
+.empty{text-align:center; color:var(--muted); padding:40px 20px; font-size:14px;}
+.empty .big{font-size:40px; display:block; margin-bottom:10px;}
+.dangerbtn{display:block; width:100%; margin-top:16px; padding:12px; border-radius:12px;
+  border:1px solid var(--red); background:none; color:var(--red); font-weight:700; cursor:pointer;}
+.guide h2{font-size:17px; margin:22px 0 8px;}
+.guide h2:first-child{margin-top:6px;}
+.guide p, .guide li{font-size:14px; line-height:1.55; color:var(--text);}
+.guide ul{padding-left:20px; margin:6px 0;}
+.guide .card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:14px 16px; margin-bottom:4px;}
+.setrow2{margin-bottom:14px;}
+.setrow2 label{font-size:13px; font-weight:700; display:block; margin-bottom:6px; color:var(--muted);}
+.setrow2 input{width:100%; padding:14px; border-radius:12px; border:1px solid var(--border);
+  background:var(--card); color:var(--text); font-size:15px;}
+.setrow2 .hint{font-size:12px; color:var(--muted); margin-top:6px; line-height:1.5;}
+.savebtn{padding:14px 26px; border-radius:12px; border:none; background:var(--accent);
+  color:#fff; font-weight:700; font-size:15px; cursor:pointer; margin-right:8px;}
+.testbtn{padding:14px 26px; border-radius:12px; border:1px solid var(--border);
+  background:var(--card); color:var(--text); font-weight:700; font-size:15px; cursor:pointer;}
+.status{font-size:13px; margin-top:10px; min-height:20px;}
+.status.ok{color:var(--green);} .status.err{color:var(--red);}
+ol.steps{font-size:14px; line-height:1.7; padding-left:20px;}
+ol.steps code{background:var(--card2); padding:2px 6px; border-radius:6px; font-size:12.5px;}
+.toast{position:fixed; bottom:100px; left:50%; transform:translateX(-50%) translateY(20px);
+  background:var(--text); color:var(--bg); padding:12px 22px; border-radius:99px;
+  font-weight:700; font-size:14px; opacity:0; transition:all .3s; z-index:50; pointer-events:none;}
+.toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+.hidden{display:none !important;}
+</style>
+</head>
+<body>
+<header>
+  <div class="toprow">
+    <h1>🏋️ GAINZ <span class="sub">4-Day Split</span></h1>
+    <button class="iconbtn" id="themeBtn" title="Toggle theme">🌙</button>
+  </div>
+</header>
+<div class="daybar" id="daybar"></div>
+<main>
+  <section id="tab-workout">
+    <div class="progress"><div id="prog"></div></div>
+    <div id="daycontent"></div>
+  </section>
+  <section id="tab-history" class="hidden">
+    <div id="historylist"></div>
+    <button class="dangerbtn" id="clearHist">Clear history</button>
+  </section>
+  <section id="tab-guide" class="hidden guide"></section>
+  <section id="tab-settings" class="hidden">
+    <h2 style="font-size:17px;">Notion sync</h2>
+    <p style="font-size:13px; color:var(--muted); line-height:1.55;">Check-ins save on this phone instantly. Paste your Zapier webhook URL below and they'll also land in your <b>GAINZ Check-ins</b> Notion database.</p>
+    <div class="setrow2">
+      <label>Zapier webhook URL</label>
+      <input type="password" id="webhookUrl" placeholder="https://hooks.zapier.com/hooks/catch/..." autocomplete="off">
+      <div class="hint">Stored only in this browser — never in the page or the repo.</div>
+    </div>
+    <button class="savebtn" id="saveWebhook">Save</button>
+    <button class="testbtn" id="testWebhook">Send test</button>
+    <div class="status" id="webhookStatus"></div>
+    <h2 style="font-size:17px; margin-top:26px;">Setup (one time, ~5 min)</h2>
+    <ol class="steps">
+      <li>In Zapier, create a Zap — Trigger: <b>Webhooks by Zapier → Catch Hook</b>. Copy the webhook URL and paste it above, then Save.</li>
+      <li>Action: <b>Notion → Create Database Item</b> → database <b>GAINZ Check-ins</b>. Map fields: <code>Name ← name</code>, <code>Date ← date</code>, <code>Day ← day</code>, <code>Exercises ← exercises</code>, <code>Sets ← sets</code>, <code>Source ← source</code>.</li>
+      <li>Test the Zap, then turn it on. Every check-in now appears in Notion.</li>
+    </ol>
+  </section>
+</main>
+<nav class="tabbar">
+  <button class="tab active" data-tab="workout"><span class="ico">💪</span>Workout</button>
+  <button class="tab" data-tab="history"><span class="ico">🗓️</span>History</button>
+  <button class="tab" data-tab="guide"><span class="ico">📖</span>Guide</button>
+  <button class="tab" data-tab="settings"><span class="ico">⚙️</span>Settings</button>
+</nav>
+<div class="toast" id="toast"></div>
+<script>
+/* ===== PLAN DATA (from GAINZ 4 Day SPLIT doc) ===== */
+const PLAN = [
+ {day:1,name:"Push",type:"lift",exercises:[
+  {name:"Bench Press (Barbell)",sets:4,reps:"6-8",alts:["Bench Press (Dumbbell)","Bench Press (Machine)"]},
+  {name:"Incline Bench Press (Dumbbell)",sets:3,reps:"8-12",alts:["Incline Bench Press (Barbell)","Landmine Press (T-Bar)"]},
+  {name:"Seated Overhead Press (Dumbbell)",sets:3,reps:"8-12",alts:["Arnold Press (Dumbbell)","Shoulder Press (Machine)"]},
+  {name:"Lateral Raise (Dumbbell)",sets:3,reps:"8-12",note:"Can do more sets + drop set!",alts:["Cross Body Lateral Raise (Cable)"]}
+ ]},
+ {day:2,name:"Pull",type:"lift",exercises:[
+  {name:"Bent Over Row (Barbell)",sets:3,reps:"8-12",alts:["Single-Arm Row (Dumbbell)","T-Bar Row"]},
+  {name:"Lat Pulldown (Cable)",sets:3,reps:"8-12",alts:["Pull Ups (Bodyweight or Assisted)","Single Arm Pulldown (Cable)"]},
+  {name:"Shrug (Dumbbell)",sets:4,reps:"8-12",alts:["Shrug (Barbell)","Chest Supported Incline Shrug"]},
+  {name:"Face Pull (Cable)",sets:3,reps:"8-12",alts:["Rear Delt Fly (Cable or Machine)","Band Pull-Aparts"]}
+ ]},
+ {day:3,name:"Rest",type:"rest"},
+ {day:4,name:"Legs",type:"lift",exercises:[
+  {name:"Squat (Barbell)",sets:3,reps:"6-12",alts:["Goblet Squat (Dumbbell)","Hack Squat (Machine)"]},
+  {name:"Seated Hamstring Curl (Machine)",sets:3,reps:"8-12",alts:["Lying Leg Curl (Machine)","RDL (Dumbbell or Barbell)"]},
+  {name:"Leg Extension (Machine)",sets:3,reps:"8-12",alts:["Sissy Squat (Bodyweight or Smith)","Step-Ups (Dumbbell)"]},
+  {name:"Standing Calf Raise (Dumbbell)",sets:3,reps:"15-20",alts:["Seated Calf Raise (Machine)","Calf Press (Leg Press Machine)"]}
+ ]},
+ {day:5,name:"Arms",type:"lift",exercises:[
+  {name:"Bicep Curl (Dumbbell)",sets:3,reps:"8-12",alts:["Spider Curls (Dumbbell on Incline Bench)","Curl (Cable)"]},
+  {name:"Tricep Extension (Cable, V-bar)",sets:3,reps:"6-8",alts:["Skull Crushers (EZ/Curl Bar)","Overhead Tricep Extension (Cable)"]},
+  {name:"Tricep Extension (Cable, Long Rope)",sets:3,reps:"8-12",note:"Lighter weight here",alts:["Single Arm Tricep Extension (Cable)","Tricep Dip (Bodyweight, bench)"]},
+  {name:"Incline Curl (Dumbbell)",sets:3,reps:"8-12",alts:["Concentration Curl (Dumbbell)","Bicep Curl (Armblaster)"]},
+  {name:"Seated Overhead Tricep Extension (Dumbbell)",sets:3,reps:"8-12",alts:["Seated Overhead Tricep Extension (EZ Curl)","Tricep Pushdown (Cable, straight bar)"]},
+  {name:"Cable Curl (Straight bar)",sets:3,reps:"8-12",alts:["EZ Curl (21s)"]}
+ ]},
+ {day:6,name:"Rest",type:"rest"},
+ {day:7,name:"Rest",type:"rest"}
+];
+const GUIDE = [
+ ["🔢 Rep Ranges","<ul><li><b>8–12 range:</b> start with a weight you can only do 8 reps with (to failure). Add reps each session until you hit 12 solid, controlled reps — then increase weight and drop back to 8.</li><li><b>Other ranges:</b> hit the listed reps and reach failure (or just past it) at that point.</li></ul>"],
+ ["⏱️ Rest Between Sets","<p>No fixed timer — go when:</p><ul><li>Breathing mostly recovered (not gasping)</li><li>Heart rate controlled</li><li>Target muscles aren't fully fatigued</li><li>You feel ready to attack the next set</li></ul>"],
+ ["🕐 Workout Duration","<p>Aim for about <b>1 hour</b>. Much longer usually means resting too long between sets.</p>"],
+ ["🔥 Intensity","<p>Push to your limits — it should feel uncomfortable. <b>Failure</b> = you can't complete another clean rep with good form. Hit failure (or just before) on the <b>last rep of every set</b> — those last 2–3 reps are where you grow.</p>"],
+ ["🧍 Spotters","<p>Ask for a spotter whenever you need one (especially heavy bench). Safety first — injuries stop all progress.</p>"],
+ ["💪 Back-Focused Exercises","<p>On pulls (rows, pulldowns), put your <b>thumb on top of the bar</b> instead of wrapping it under — less forearm, more back.</p>"],
+ ["🦵 Unilateral Exercises","<p>Reps listed are <b>per side</b>. Always match reps on both sides, even if one feels weaker.</p>"]
+];
+
+/* ===== STATE ===== */
+let cur = 0;                       // index into PLAN
+let checked = {};                  // "di-ei-si" -> true (session only)
+let checkins = loadJSON("gainz_checkins", []);
+const $ = id => document.getElementById(id);
+function loadJSON(k, fb){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : fb; }catch(e){ return fb; } }
+function saveJSON(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),2200); }
+
+/* ===== THEME ===== */
+function setTheme(t){ document.documentElement.dataset.theme=t; $("themeBtn").textContent = t==="light"?"🌙":"☀️"; saveJSON("gainz_theme",t); }
+$("themeBtn").onclick = ()=> setTheme(document.documentElement.dataset.theme==="light"?"dark":"light");
+setTheme(loadJSON("gainz_theme", "dark"));
+
+/* ===== TABS ===== */
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  b.classList.add("active");
+  ["workout","history","guide","settings"].forEach(t=>$("tab-"+t).classList.toggle("hidden", t!==b.dataset.tab));
+  if(b.dataset.tab==="history") renderHistory();
+  window.scrollTo(0,0);
+});
+
+/* ===== DAY BAR ===== */
+function renderDaybar(){
+  const bar=$("daybar"); bar.innerHTML="";
+  PLAN.forEach((d,i)=>{
+    const b=document.createElement("button");
+    b.className="daybtn"+(d.type==="rest"?" rest":"")+(i===cur?" active":"");
+    if(d.type==="lift" && checkins.some(c=>c.dateISO===todayISO() && c.day===d.name)) b.classList.add("done");
+    b.innerHTML=`<span class="dnum">Day ${d.day}</span><span class="dname">${d.name}</span>`;
+    b.onclick=()=>{cur=i; renderDaybar(); renderDay();};
+    bar.appendChild(b);
+  });
+}
+function todayISO(){ const n=new Date(); return n.getFullYear()+"-"+String(n.getMonth()+1).padStart(2,"0")+"-"+String(n.getDate()).padStart(2,"0"); }
+
+/* ===== WORKOUT RENDER ===== */
+function key(di,ei,si){ return di+"-"+ei+"-"+si; }
+function renderDay(){
+  const d=PLAN[cur], box=$("daycontent"); box.innerHTML="";
+  if(d.type==="rest"){
+    const next=PLAN.findIndex((x,i)=>i>cur&&x.type==="lift");
+    box.innerHTML=`<div class="restcard"><div class="big">😴</div><h2>Rest Day</h2>
+      <p>Recovery is where you grow. Mobility, walk, sleep well.</p>
+      ${next>=0?`<button class="nextbtn" id="nextUp">Next: Day ${PLAN[next].day} ${PLAN[next].name} →</button>`:""}</div>`;
+    const nb=$("nextUp"); if(nb) nb.onclick=()=>{cur=next; renderDaybar(); renderDay();};
+    $("prog").style.width="0%"; return;
+  }
+  let total=0, done=0;
+  d.exercises.forEach((ex,ei)=>{
+    total+=ex.sets;
+    const card=document.createElement("div"); card.className="excard";
+    let exDone=0;
+    const setrow=document.createElement("div"); setrow.className="setrow";
+    for(let s=0;s<ex.sets;s++){
+      const k=key(cur,ei,s), on=!!checked[k];
+      if(on){exDone++; done++;}
+      const btn=document.createElement("button");
+      btn.className="setbtn"+(on?" on":""); btn.textContent=s+1;
+      btn.onclick=()=>{ checked[k]=!checked[k]; if(!checked[k]) delete checked[k]; renderDay(); };
+      setrow.appendChild(btn);
+    }
+    if(exDone===ex.sets) card.classList.add("done");
+    card.innerHTML=`<div class="exhead"><span class="exname">${ex.name}</span><span class="exsets">${ex.sets} × ${ex.reps}</span></div>
+      ${ex.note?`<div class="exnote">💡 ${ex.note}</div>`:""}`;
+    card.appendChild(setrow);
+    if(ex.alts&&ex.alts.length){
+      const det=document.createElement("details"); det.className="alts";
+      det.innerHTML=`<summary>Alternative exercises</summary><ul>${ex.alts.map(a=>`<li>${a}</li>`).join("")}</ul>`;
+      card.appendChild(det);
+    }
+    box.appendChild(card);
+  });
+  $("prog").style.width=(total?Math.round(done/total*100):0)+"%";
+  const cb=document.createElement("button"); cb.className="checkinbtn"; cb.textContent="✅ Check in — Day "+d.day+" "+d.name;
+  cb.onclick=checkIn; box.appendChild(cb);
+}
+
+/* ===== CHECK-IN + SYNC ===== */
+function fmtDate(dt){ return dt.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric",year:"numeric"}); }
+function webhookURL(){ return (localStorage.getItem("gainz_webhook_url")||"").trim(); }
+function checkIn(){
+  const d=PLAN[cur]; let exDone=0, setsDone=0, setsTotal=0;
+  d.exercises.forEach((ex,ei)=>{ let n=0;
+    for(let s=0;s<ex.sets;s++){ setsTotal++; if(checked[key(cur,ei,s)]){n++; setsDone++;} }
+    if(n===ex.sets) exDone++;
+  });
+  const now=new Date();
+  const entry={id:Date.now(), dateISO:todayISO(), displayDate:fmtDate(now), day:d.name,
+    exercisesDone:exDone, exercisesTotal:d.exercises.length, setsDone, setsTotal, synced:false};
+  checkins.unshift(entry); saveJSON("gainz_checkins",checkins);
+  renderDaybar(); renderHistory();
+  toast("Checked in! 💪");
+  syncEntry(entry);
+}
+async function syncEntry(entry, isRetry){
+  const url=webhookURL();
+  if(!url){ if(isRetry) toast("Add your webhook URL in Settings first"); return false; }
+  const payload={name:entry.day+" — "+entry.displayDate, date:entry.dateISO, day:entry.day,
+    exercises:entry.exercisesDone+"/"+entry.exercisesTotal, sets:entry.setsDone+"/"+entry.setsTotal, source:"GAINZ app"};
+  try{
+    const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(payload)});
+    if(r.ok){ entry.synced=true; saveJSON("gainz_checkins",checkins); renderHistory(); if(isRetry) toast("Synced to Notion ✓"); return true; }
+    throw new Error("HTTP "+r.status);
+  }catch(e){ if(isRetry) toast("Sync failed — will retry later"); return false; }
+}
+
+/* ===== HISTORY ===== */
+function renderHistory(){
+  const box=$("historylist"); box.innerHTML="";
+  if(!checkins.length){ box.innerHTML=`<div class="empty"><span class="big">📭</span>No check-ins yet.<br>Finish a workout and tap <b>Check in</b>.</div>`; return; }
+  checkins.forEach(c=>{
+    const el=document.createElement("div"); el.className="histitem";
+    el.innerHTML=`<div class="hrow"><div><div class="hdate">${c.displayDate}</div><span class="hday">Day ${c.day}</span></div>
+      <span class="badge ${c.synced?"ok":"pend"}">${c.synced?"Synced to Notion":"On this device"}</span></div>
+      <div class="hstats">${c.exercisesDone}/${c.exercisesTotal} exercises · ${c.setsDone}/${c.setsTotal} sets</div>
+      ${c.synced?"":`<button class="retrybtn" data-id="${c.id}">↻ Retry Notion sync</button>`}`;
+    box.appendChild(el);
+  });
+  box.querySelectorAll(".retrybtn").forEach(b=>b.onclick=()=>{
+    const e=checkins.find(x=>x.id==b.dataset.id); if(e) syncEntry(e,true);
+  });
+}
+$("clearHist").onclick=()=>{ if(confirm("Delete all check-in history on this device?")){ checkins=[]; saveJSON("gainz_checkins",checkins); renderHistory(); renderDaybar(); } };
+
+/* ===== SETTINGS ===== */
+$("webhookUrl").value = localStorage.getItem("gainz_webhook_url")||"";
+$("saveWebhook").onclick=()=>{
+  const v=$("webhookUrl").value.trim();
+  localStorage.setItem("gainz_webhook_url",v);
+  const st=$("webhookStatus"); st.className="status ok"; st.textContent = v ? "Saved ✓" : "Cleared.";
+  setTimeout(()=>{st.textContent="";},2500);
+};
+$("testWebhook").onclick=async()=>{
+  const st=$("webhookStatus"); const url=webhookURL();
+  if(!url){ st.className="status err"; st.textContent="Paste your webhook URL first."; return; }
+  st.className="status"; st.textContent="Sending test...";
+  try{
+    const r=await fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({name:"Test — "+fmtDate(new Date()),date:todayISO(),day:"Push",exercises:"0/0",sets:"0/0",source:"GAINZ app (test)"})});
+    if(r.ok){ st.className="status ok"; st.textContent="Test delivered ✓ — check your Zap's history and Notion."; }
+    else{ st.className="status err"; st.textContent="Zapier responded with HTTP "+r.status+"."; }
+  }catch(e){ st.className="status err"; st.textContent="Couldn't reach the webhook. Check the URL."; }
+};
+
+/* ===== GUIDE ===== */
+document.querySelector(".guide").innerHTML = GUIDE.map(([t,h])=>`<div class="card"><h2>${t}</h2>${h}</div>`).join("");
+
+/* ===== INIT ===== */
+renderDaybar(); renderDay();
+</script>
+</body>
+</html>
